@@ -4,7 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 
 /**
- * 生成证明
+ * 
  * @param {string} inputPath - 输入 JSON 文件路径
  * @param {string} wasmPath - 电路 wasm 路径
  * @param {string} zkeyPath - zkey 路径

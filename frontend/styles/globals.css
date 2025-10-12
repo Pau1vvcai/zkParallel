@@ -1,3 +1,169 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*zkParallel Frontend*/
+
+
+/*Tailwind Core Directives*/
+@import 'tailwindcss';
+/*Base Reset & Typography*/
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: linear-gradient(to bottom right, #f8fafc, #e2e8f0);
+  font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #1e293b; /* slate-800 */
+  scroll-behavior: smooth;
+}
+
+#__next {
+  height: 100%;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 600;
+  color: #0f172a; /* slate-900 */
+}
+
+p, label, input, button {
+  font-size: 0.95rem;
+}
+
+/*Layout Utilities*/
+.container-centered {
+  @apply flex items-center justify-center min-h-screen p-6;
+}
+
+.card {
+  @apply bg-white rounded-2xl shadow-xl p-8 w-full max-w-md space-y-6;
+}
+
+/*Input Styling*/
+input[type="number"],
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  @apply w-full border border-gray-300 rounded-md p-2 mt-1
+         focus:ring-2 focus:ring-blue-100 focus:border-blue-500
+         outline-none transition;
+}
+
+/*Button Variants*/
+.btn {
+  @apply w-full py-2 rounded-md font-medium text-white
+         transition-all duration-200 active:scale-[0.98];
+}
+
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400;
+}
+
+.btn-success {
+  @apply bg-green-600 hover:bg-green-700;
+}
+
+.btn-danger {
+  @apply bg-red-600 hover:bg-red-700;
+}
+
+/*Feedback Panels*/
+.panel-success {
+  @apply border border-green-300 bg-green-50 p-4 rounded-lg text-sm text-green-700;
+}
+
+.panel-error {
+  @apply border border-red-300 bg-red-50 p-4 rounded-lg text-sm text-red-700;
+}
+
+/*Animations*/
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeScale {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-fadeScale {
+  animation: fadeScale 0.25s ease-in-out;
+}
+
+/*Scrollbar (Optional Aesthetic)*/
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/*Small Utility Classes*/
+.text-muted {
+  color: #64748b; /* slate-500 */
+}
+
+.text-highlight {
+  @apply text-blue-600 font-medium;
+}
+
+.center-text {
+  text-align: center;
+}
+
+
+html, body, #__next {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/*Background & Typography Override*/
+html, body {
+  height: 100%;
+  margin: 0;
+  background: radial-gradient(circle at top left, #f9fafc, #e2e8f0 60%, #e0e7ff 100%);
+  font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #1e293b;
+}
+
+.card {
+  @apply bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 w-full max-w-md space-y-6 border border-slate-200;
+}
+
+.btn-primary {
+  @apply bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 disabled:from-blue-400 disabled:to-indigo-400;
+}
+
+label {
+  @apply block mb-1 text-sm font-medium text-gray-600;
+}
+
+input {
+  @apply w-full border border-gray-300 rounded-md p-2 mt-1 mb-3 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition;
+}
+
+.panel-success {
+  @apply border border-green-400 bg-green-50/70 p-4 rounded-lg text-sm text-green-800 shadow-inner;
+}
+
+.panel-error {
+  @apply border border-red-400 bg-red-50/70 p-4 rounded-lg text-sm text-red-800 shadow-inner;
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+  -webkit-background-clip: text;
+  color: transparent;
+  letter-spacing: 0.5px;
+}

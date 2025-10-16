@@ -5,10 +5,10 @@ import path from "path";
 
 /**
  * 
- * @param {string} inputPath - 输入 JSON 文件路径
- * @param {string} wasmPath - 电路 wasm 路径
- * @param {string} zkeyPath - zkey 路径
- * @param {string} outputDir - 输出目录
+ * @param {string} inputPath 
+ * @param {string} wasmPath 
+ * @param {string} zkeyPath 
+ * @param {string} outputDir 
  */
 export async function generateProof(inputPath, wasmPath, zkeyPath, outputDir) {
   console.log("🚀 Starting proof generation...");
@@ -26,10 +26,10 @@ export async function generateProof(inputPath, wasmPath, zkeyPath, outputDir) {
 }
 
 /**
- * 验证证明
- * @param {string} vkeyPath - 验证密钥路径
- * @param {string} publicPath - public.json 路径
- * @param {string} proofPath - proof.json 路径
+ * verifyProof
+ * @param {string} vkeyPath - vkeyPath
+ * @param {string} publicPath - public.json
+ * @param {string} proofPath - proof.json
  */
 export async function verifyProof(vkeyPath, publicPath, proofPath) {
   console.log("🚀 Starting verification...");

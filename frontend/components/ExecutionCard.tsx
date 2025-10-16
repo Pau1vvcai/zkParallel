@@ -1,25 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const loadSnarkjs = async () => await import("snarkjs");
 
 export default function ExecutionCard() {
+  const [circuits, setCircuits] = useState<any[]>([]);
+  const [selectedCircuit, setSelectedCircuit] = useState<string>("");
   const [inputData, setInputData] = useState<any>(null);
   const [status, setStatus] =
     useState<"idle" | "loading" | "proving" | "verified" | "failed">("idle");
   const [log, setLog] = useState<string>("");
 
-  const appendLog = (msg: string) => setLog((prev) => prev + msg + "\n");
+  const appendLog = (msg: string) =>
+    setLog((prev) => `${prev}${msg}\n`);
 
-  // --- load input ---
-  const loadInputFile = async (filename: string) => {
+  // --- Scanning circuits ---
+  useEffect(() => {
+    (async () => {
+      try {
+        appendLog("🔍 Scanning circuits...");
+        const res = await fetch("/api/circuits");
+        const data = await res.json();
+        setCircuits(data);
+        if (data.length > 0) {
+          setSelectedCircuit(data[0].id);
+          appendLog(`✅ Found ${data.length} circuit(s). Default: ${data[0].id}`);
+        } else {
+          appendLog("⚠️ No circuits found under /public/zk/");
+        }
+      } catch (err) {
+        console.error(err);
+        appendLog("❌ Failed to load circuit list.");
+      }
+    })();
+  }, []);
+
+  // --- loadInputFile ---
+  const loadInputFile = async () => {
     try {
       setStatus("loading");
-      const res = await fetch(`/api/inputs/${filename}`);
+      const res = await fetch(`/api/inputs/${selectedCircuit}`);
       const data = await res.json();
       setInputData(data);
-      appendLog(`📥 Loaded ${filename}.json`);
+      appendLog(`📥 Loaded ${selectedCircuit}.json`);
       setStatus("idle");
     } catch (err) {
       console.error(err);
@@ -28,10 +52,10 @@ export default function ExecutionCard() {
     }
   };
 
-  // --- save input ---
-  const saveInputFile = async (filename: string) => {
+  // --- saveInputFile ---
+  const saveInputFile = async () => {
     try {
-      const res = await fetch(`/api/inputs/${filename}`, {
+      const res = await fetch(`/api/inputs/${selectedCircuit}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(inputData, null, 2),
@@ -44,34 +68,38 @@ export default function ExecutionCard() {
     }
   };
 
-  // --- Generate and prove proof ---
+  // --- handleProve ---
   const handleProve = async () => {
     try {
       setStatus("proving");
-      appendLog("🚀 Starting proof generation...");
-      const snarkjs = await loadSnarkjs();
+      appendLog(`🚀 Proving ${selectedCircuit}...`);
 
-      const input = inputData || { balance_before: 100, amount: 10 };
+      const snarkjs = await loadSnarkjs();
+      const circuit = circuits.find((c) => c.id === selectedCircuit);
+
+      if (!circuit) throw new Error("Circuit not found or not loaded.");
+
+      const input = inputData || {};
       appendLog("🧾 Input: " + JSON.stringify(input));
 
       const { proof, publicSignals } = await snarkjs.groth16.fullProve(
         input,
-        "/zk/execution.wasm",
-        "/zk/execution_0001.zkey"
+        circuit.wasm,
+        circuit.zkey
       );
 
       appendLog("✅ Proof generated.");
 
-      const vkey = await (await fetch("/zk/verification_key.json")).json();
+      const vkey = await (await fetch(circuit.vkey)).json();
       const verified = await snarkjs.groth16.verify(vkey, publicSignals, proof);
 
       appendLog("🔍 Verification result: " + verified);
       if (!verified) throw new Error("Invalid proof");
 
       setStatus("verified");
-      appendLog("🎉 Proof verified successfully!");
+      appendLog(`🎉 ${selectedCircuit} verified successfully!`);
     } catch (err: any) {
-      console.error("Proof generation failed:", err);
+      console.error(err);
       setStatus("failed");
       appendLog("❌ Error: " + err.message);
     }
@@ -87,35 +115,63 @@ export default function ExecutionCard() {
     >
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-slate-800">
-          Execution Checker
+          zkParallel Circuit Verifier
         </h2>
-        <span className="text-xs text-slate-500">Groth16 · Circom</span>
+        <span className="text-xs text-slate-500">v1.0.3 · Auto Circuit Scan</span>
+      </div>
+
+      {/* Select Circuit */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-slate-700 mb-1">
+          Select Circuit
+        </label>
+        <select
+          value={selectedCircuit}
+          onChange={(e) => {
+            setSelectedCircuit(e.target.value);
+            setInputData(null);
+            setLog("");
+            setStatus("idle");
+          }}
+          className="border border-slate-300 rounded px-3 py-2 text-sm w-full"
+        >
+          {circuits.length === 0 && (
+            <option>Loading circuits...</option>
+          )}
+          {circuits.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name || c.id}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* button */}
       <div className="flex flex-wrap gap-3 mb-4">
         <button
-          onClick={() => loadInputFile("execution")}
+          onClick={loadInputFile}
+          disabled={!selectedCircuit}
           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
         >
-          📥 Load Input (execution.json)
+          📥 Load Input
         </button>
         <button
-          onClick={() => saveInputFile("execution")}
+          onClick={saveInputFile}
+          disabled={!selectedCircuit}
           className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
         >
           💾 Save Input
         </button>
         <button
           onClick={handleProve}
-          disabled={status === "proving"}
+          disabled={status === "proving" || !selectedCircuit}
           className="bg-slate-900 hover:bg-slate-800 text-white px-3 py-1 rounded text-sm"
         >
           🚀 Generate Proof
         </button>
       </div>
 
-      {/* Edit */}
+      {/* onChange */}
       <textarea
         value={JSON.stringify(inputData || {}, null, 2)}
         onChange={(e) => {
@@ -123,9 +179,10 @@ export default function ExecutionCard() {
             const json = JSON.parse(e.target.value);
             setInputData(json);
           } catch {
-            // Temp no error
+            // ignore
           }
         }}
+        placeholder="Edit or load your circuit input JSON here..."
         className="
           w-full h-48 font-mono text-xs p-3 border border-slate-200
           rounded bg-slate-50 focus:ring-2 focus:ring-blue-100
@@ -137,8 +194,6 @@ export default function ExecutionCard() {
       <p className="mt-3 text-sm text-slate-600">
         Status: <b>{status}</b>
       </p>
-
-      {/* Output */}
       <pre
         className="
           mt-3 text-xs bg-slate-900 text-slate-100 p-3 rounded

@@ -3,7 +3,7 @@ import ExecutionCard from "../components/ExecutionCard";
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-blue-100">
-      {/* 顶部安全距离 */}
+      {/* header */}
       <header className="max-w-3xl mx-auto px-4 pt-10 pb-4">
         <h1 className="text-3xl font-extrabold text-slate-800">
           zkParallel
@@ -13,7 +13,7 @@ export default function Home() {
         </p>
       </header>
 
-      {/* 主体居中区域 */}
+      {/* main */}
       <main className="max-w-3xl mx-auto px-4 pb-16">
         <ExecutionCard />
       </main>

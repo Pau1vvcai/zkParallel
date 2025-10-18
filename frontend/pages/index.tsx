@@ -1,22 +1,33 @@
+"use client";
+import { useState } from "react";
 import ExecutionCard from "../components/ExecutionCard";
+import ParallelVerifier from "../components/ParallelVerifier";
 
-export default function Home() {
+export default function Page() {
+  const [mode, setMode] = useState<"single" | "parallel">("single");
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-blue-100">
-      {/* header */}
-      <header className="max-w-3xl mx-auto px-4 pt-10 pb-4">
-        <h1 className="text-3xl font-extrabold text-slate-800">
-          zkParallel
-        </h1>
-        <p className="text-slate-600 mt-1">
-          Generate and verify zero-knowledge proofs directly in your browser
-        </p>
-      </header>
+    <main className="min-h-screen bg-gradient-to-b from-neutral-100 to-white flex flex-col items-center py-12 space-y-8">
+      <div className="flex gap-3">
+        <button
+          onClick={() => setMode("single")}
+          className={`rounded-xl px-4 py-2 text-sm ${
+            mode === "single" ? "bg-black text-white" : "border border-neutral-400"
+          }`}
+        >
+          Single-Circuit
+        </button>
+        <button
+          onClick={() => setMode("parallel")}
+          className={`rounded-xl px-4 py-2 text-sm ${
+            mode === "parallel" ? "bg-black text-white" : "border border-neutral-400"
+          }`}
+        >
+          Parallel Mode
+        </button>
+      </div>
 
-      {/* main */}
-      <main className="max-w-3xl mx-auto px-4 pb-16">
-        <ExecutionCard />
-      </main>
-    </div>
+      {mode === "single" ? <ExecutionCard /> : <ParallelVerifier />}
+    </main>
   );
 }

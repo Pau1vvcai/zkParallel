@@ -12,11 +12,11 @@ template RootVerifier() {
     h.inputs[0] <== in_oldRoot;
     h.inputs[1] <== in_proof;
 
-    // 检查新根与哈希结果相等
+    
     signal diff;
     diff <== in_newRoot - h.out;
 
-    // diff = 0 表示通过
+   
     out_verified <== 1 - (diff * diff);
 }
 

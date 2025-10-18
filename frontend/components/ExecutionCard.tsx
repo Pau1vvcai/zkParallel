@@ -14,7 +14,7 @@ export default function ExecutionCard() {
 
   const appendLog = (msg: string) => setLog((prev) => prev + msg + "\n");
 
-  // 🔍 自动扫描电路
+  // 🔍 Scanning
   useEffect(() => {
     (async () => {
       appendLog("🔍 Scanning circuits...");
@@ -32,7 +32,7 @@ export default function ExecutionCard() {
     })();
   }, []);
 
-  // 📥 加载输入文件
+  // 📥 loadInputFile
   const loadInputFile = async () => {
     try {
       setStatus("loading");
@@ -47,7 +47,7 @@ export default function ExecutionCard() {
     }
   };
 
-  // 💾 保存输入文件
+  // 💾 saveInputFile
   const saveInputFile = async () => {
     try {
       const res = await fetch(`/api/inputs/${selectedCircuit}`, {
@@ -62,7 +62,7 @@ export default function ExecutionCard() {
     }
   };
 
-  // 🚀 单电路证明
+  // 🚀 handleProve
   const handleProve = async () => {
     try {
       setStatus("proving");
@@ -90,7 +90,7 @@ export default function ExecutionCard() {
     }
   };
 
-  // 🧩 测试依赖图
+  // 🧩 testGraph
   const testGraph = () => {
     const order = getExecutionOrder();
     console.log("✅ Execution Order:", order);
@@ -113,7 +113,7 @@ export default function ExecutionCard() {
         <span className="text-xs text-slate-500">v1.0.4-Lite · Stable Single-Circuit Mode</span>
       </div>
 
-      {/* 电路选择 */}
+      {/* selectedCircuit */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-slate-700 mb-1">Select Circuit</label>
         <select
@@ -133,7 +133,7 @@ export default function ExecutionCard() {
         </select>
       </div>
 
-      {/* 按钮区 */}
+      {/* button */}
       <div className="flex flex-wrap gap-3 mb-4">
         <button onClick={loadInputFile} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">📥 Load Input</button>
         <button onClick={saveInputFile} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">💾 Save Input</button>
@@ -141,7 +141,7 @@ export default function ExecutionCard() {
         <button onClick={testGraph} className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm">🧩 Test Circuit Graph</button>
       </div>
 
-      {/* 输入编辑区 */}
+      {/* inputData */}
       <textarea
         value={JSON.stringify(inputData || {}, null, 2)}
         onChange={(e) => {
@@ -153,7 +153,7 @@ export default function ExecutionCard() {
         className="w-full h-48 font-mono text-xs p-3 border border-slate-200 rounded bg-slate-50 focus:ring-2 focus:ring-blue-100 text-slate-700"
       />
 
-      {/* 状态与日志 */}
+      {/* Status */}
       <p className="mt-3 text-sm text-slate-600">Status: <b>{status}</b></p>
       <pre className="mt-3 text-xs bg-slate-900 text-slate-100 p-3 rounded max-h-64 overflow-y-auto whitespace-pre-wrap">
         {log || "No logs yet."}

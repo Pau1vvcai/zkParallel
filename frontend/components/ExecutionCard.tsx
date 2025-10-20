@@ -14,10 +14,10 @@ export default function ExecutionCard() {
 
   const appendLog = (msg: string) => setLog((prev) => prev + msg + "\n");
 
-  // 🔍 Scanning
+  // 🔍 Circuit Scan
   useEffect(() => {
     (async () => {
-      appendLog("🔍 Scanning circuits...");
+      appendLog("🔍 Scanning available circuits...");
       try {
         const res = await fetch("/api/circuits");
         const data = await res.json();
@@ -32,7 +32,7 @@ export default function ExecutionCard() {
     })();
   }, []);
 
-  // 📥 loadInputFile
+  // 📥 Load Input
   const loadInputFile = async () => {
     try {
       setStatus("loading");
@@ -47,7 +47,7 @@ export default function ExecutionCard() {
     }
   };
 
-  // 💾 saveInputFile
+  // 💾 Save Input
   const saveInputFile = async () => {
     try {
       const res = await fetch(`/api/inputs/${selectedCircuit}`, {
@@ -62,11 +62,11 @@ export default function ExecutionCard() {
     }
   };
 
-  // 🚀 handleProve
+  // 🚀 Generate Proof
   const handleProve = async () => {
     try {
       setStatus("proving");
-      appendLog(`🚀 Proving ${selectedCircuit}...`);
+      appendLog(`🚀 Generating proof for ${selectedCircuit}...`);
       const snarkjs = await loadSnarkjs();
       const input = inputData || {};
       appendLog("🧾 Input: " + JSON.stringify(input));
@@ -90,7 +90,7 @@ export default function ExecutionCard() {
     }
   };
 
-  // 🧩 testGraph
+  // 🧩 Test Graph
   const testGraph = () => {
     const order = getExecutionOrder();
     console.log("✅ Execution Order:", order);
@@ -105,17 +105,34 @@ export default function ExecutionCard() {
     }
   };
 
-  // 🧱 UI
   return (
-    <section className="bg-white/95 backdrop-blur-xl border border-slate-300 rounded-xl shadow px-8 py-7 mt-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-slate-800">zkParallel Circuit Verifier</h2>
-        <span className="text-xs text-slate-500">v1.0.4-Lite · Stable Single-Circuit Mode</span>
+    <section className="mx-auto max-w-4xl space-y-6 rounded-3xl bg-gradient-to-b from-white to-neutral-50 p-8 shadow-xl border border-neutral-200">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h2 className="text-3xl font-semibold text-neutral-900 tracking-tight">
+            zkParallel Circuit Executor
+          </h2>
+          <p className="text-sm text-neutral-500">Single-Circuit Execution Environment</p>
+        </div>
+        <span
+          className={`text-xs font-medium rounded-full px-3 py-1 ${
+            status === "verified"
+              ? "bg-emerald-100 text-emerald-700"
+              : status === "failed"
+              ? "bg-red-100 text-red-700"
+              : status === "proving"
+              ? "bg-yellow-100 text-yellow-700 animate-pulse"
+              : "bg-neutral-100 text-neutral-500"
+          }`}
+        >
+          {status.toUpperCase()}
+        </span>
       </div>
 
-      {/* selectedCircuit */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-slate-700 mb-1">Select Circuit</label>
+      {/* Circuit Selection */}
+      <div>
+        <h3 className="text-base font-semibold text-neutral-800 mb-1">Select Circuit</h3>
         <select
           value={selectedCircuit}
           onChange={(e) => {
@@ -124,40 +141,68 @@ export default function ExecutionCard() {
             setLog("");
             setStatus("idle");
           }}
-          className="border border-slate-300 rounded px-3 py-2 text-sm w-full"
+          className="w-full border border-neutral-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300 transition"
         >
           {circuits.length === 0 && <option>Loading circuits...</option>}
           {circuits.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
         </select>
       </div>
 
-      {/* button */}
-      <div className="flex flex-wrap gap-3 mb-4">
-        <button onClick={loadInputFile} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">📥 Load Input</button>
-        <button onClick={saveInputFile} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">💾 Save Input</button>
-        <button onClick={handleProve} disabled={status === "proving"} className="bg-slate-900 hover:bg-slate-800 text-white px-3 py-1 rounded text-sm">🚀 Generate Proof</button>
-        <button onClick={testGraph} className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm">🧩 Test Circuit Graph</button>
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-3">
+        <button
+          onClick={loadInputFile}
+          className="rounded-xl bg-white border border-neutral-300 px-5 py-2 text-sm hover:bg-neutral-100 transition"
+        >
+          📥 Load Input
+        </button>
+        <button
+          onClick={saveInputFile}
+          className="rounded-xl bg-white border border-neutral-300 px-5 py-2 text-sm hover:bg-neutral-100 transition"
+        >
+          💾 Save Input
+        </button>
+        <button
+          onClick={handleProve}
+          disabled={status === "proving"}
+          className="rounded-xl bg-gradient-to-r from-black to-neutral-800 text-white px-6 py-2 text-sm hover:opacity-90 transition"
+        >
+          🚀 Generate Proof
+        </button>
+        <button
+          onClick={testGraph}
+          className="rounded-xl bg-white border border-neutral-300 px-5 py-2 text-sm hover:bg-neutral-100 transition"
+        >
+          🧩 Test Circuit Graph
+        </button>
       </div>
 
-      {/* inputData */}
-      <textarea
-        value={JSON.stringify(inputData || {}, null, 2)}
-        onChange={(e) => {
-          try {
-            const json = JSON.parse(e.target.value);
-            setInputData(json);
-          } catch {}
-        }}
-        className="w-full h-48 font-mono text-xs p-3 border border-slate-200 rounded bg-slate-50 focus:ring-2 focus:ring-blue-100 text-slate-700"
-      />
+      {/* Input JSON */}
+      <div>
+        <h3 className="text-base font-semibold text-neutral-800 mb-1">Input JSON</h3>
+        <textarea
+          value={JSON.stringify(inputData || {}, null, 2)}
+          onChange={(e) => {
+            try {
+              const json = JSON.parse(e.target.value);
+              setInputData(json);
+            } catch {}
+          }}
+          className="w-full h-56 font-mono text-xs p-4 border border-neutral-300 rounded-2xl bg-neutral-50 focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300 text-neutral-800 shadow-inner transition"
+        />
+      </div>
 
-      {/* Status */}
-      <p className="mt-3 text-sm text-slate-600">Status: <b>{status}</b></p>
-      <pre className="mt-3 text-xs bg-slate-900 text-slate-100 p-3 rounded max-h-64 overflow-y-auto whitespace-pre-wrap">
-        {log || "No logs yet."}
-      </pre>
+      {/* Logs */}
+      <div>
+        <h3 className="text-base font-semibold text-neutral-800 mb-1">Execution Logs</h3>
+        <pre className="w-full h-64 overflow-y-auto bg-neutral-900 text-green-200 rounded-2xl p-4 text-xs font-mono shadow-inner whitespace-pre-wrap">
+          {log || "No logs yet."}
+        </pre>
+      </div>
     </section>
   );
 }

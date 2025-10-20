@@ -5,8 +5,7 @@ const fs = require("fs");
 async function main() {
   console.log("🔍 Verifying deployed contracts on local network...\n");
 
-  // 读取部署记录
-  const path = "frontend/public/deployments.json";
+  const path = "frontend/lib/config/deployments.json";
   if (!fs.existsSync(path)) {
     console.error("❌ No deployment record found. Run scripts/deploy.js first.");
     process.exit(1);
@@ -19,7 +18,6 @@ async function main() {
 
   for (const [name, address] of Object.entries(deployments)) {
     try {
-      // 获取代码字节码（如果合约不存在，则返回 "0x"）
       const code = await provider.getCode(address);
       const exists = code && code !== "0x";
       const size = exists ? (code.length / 2 - 1).toLocaleString() : 0;

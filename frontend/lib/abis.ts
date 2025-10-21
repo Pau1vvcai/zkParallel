@@ -1,4 +1,4 @@
-import ExecutionVerifier from "../../artifacts/contracts/ExecutionVerifier.sol/ExecutionVerifier.json";
+import executionVerifier from "../../artifacts/contracts/executionVerifier.sol/executionVerifier.json";
 import transferVerifyVerifier from "../../artifacts/contracts/transferVerifyVerifier.sol/transferVerifyVerifier.json";
 import merkleUpdateVerifier from "../../artifacts/contracts/merkleUpdateVerifier.sol/merkleUpdateVerifier.json";
 import rootVerifierVerifier from "../../artifacts/contracts/rootVerifierVerifier.sol/rootVerifierVerifier.json";
@@ -7,7 +7,7 @@ import transactionHashVerifier from "../../artifacts/contracts/transactionHashVe
 import BatchVerifier from "../../artifacts/contracts/BatchVerifier.sol/BatchVerifier.json";
 
 export const ABIS = {
-  execution: ExecutionVerifier,
+  execution: executionVerifier,
   transferVerify: transferVerifyVerifier,
   merkleUpdate: merkleUpdateVerifier,
   rootVerifier: rootVerifierVerifier,

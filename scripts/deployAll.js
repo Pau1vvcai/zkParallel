@@ -17,7 +17,7 @@ async function main() {
   }
 
   const CONTRACTS = [
-    "ExecutionVerifier",
+    "executionVerifier",
     "transferVerifyVerifier",
     "merkleUpdateVerifier",
     "rootVerifierVerifier",

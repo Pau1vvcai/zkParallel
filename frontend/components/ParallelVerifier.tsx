@@ -14,7 +14,7 @@ import { runArcologyParallel } from "../lib/arcologyExecutor";
 import deploymentInfo from "../lib/config/deployments.json";
 
 const VERIFIER_MAP: Record<string, string> = {
-  execution: deploymentInfo.ExecutionVerifier,
+  execution: deploymentInfo.executionVerifier,
   transferVerify: deploymentInfo.transferVerifyVerifier,
   merkleUpdate: deploymentInfo.merkleUpdateVerifier,
   rootVerifier: deploymentInfo.rootVerifierVerifier,
@@ -184,6 +184,7 @@ export default function ParallelVerifier() {
               const calldata = await groth16.exportSolidityCallData(proof, publicSignals);
               const argv = JSON.parse("[" + calldata + "]");
               const addr = VERIFIER_MAP[id];
+              console.log("🔍 Creating verifier:", { id, addr, abi: ABIS[id]?.abi });
               const verifier = new ethers.Contract(addr, ABIS[id].abi, signer);
 
               appendLog("🔗 Calling verifyProof()...", id);

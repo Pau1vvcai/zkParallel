@@ -1,14 +1,5 @@
-/**
- * zkParallel Build Script v3
- * ----------------------------
- * 自动编译所有 Circom 电路 → 导出 verifier.sol → 修正类名 → 同步 ABI
- * 
- * Features:
- * ✅ 自动生成 pot12_final.ptau（可复用）
- * ✅ 编译 CIRCUIT_LIST 所有电路
- * ✅ 统一输出到 frontend/public/zk/{name}/
- * ✅ 自动重命名 Solidity verifier 类名为 {CircuitName}Verifier
- * ✅ 自动同步 ABI 文件到 frontend/lib/abis/
+/*
+ * zkParallel Build Script v3.2
  */
 
 import fs from "fs";
@@ -17,7 +8,6 @@ import { execSync as run } from "child_process";
 
 // ==================== 配置区 ====================
 
-// 电路列表（保持与 frontend/lib/circuits.ts 中一致）
 const CIRCUITS = [
   "execution",
   "transferVerify",
@@ -27,7 +17,6 @@ const CIRCUITS = [
   "transactionHash",
 ];
 
-// 各路径定义
 const ROOT = path.resolve(".");
 const CIRCOM_DIR = path.join(ROOT, "circom");
 const FRONTEND_ZK_DIR = path.join(ROOT, "frontend", "public", "zk");
@@ -36,6 +25,7 @@ const ABI_DEST = path.join(ROOT, "frontend", "lib", "abis");
 const PTAU_PATH = path.join(ROOT, "scripts", "pot12_final.ptau");
 
 // ==================== 辅助函数 ====================
+
 function log(msg) {
   console.log(msg);
 }
@@ -48,7 +38,15 @@ function capitalize(str) {
 
 // ==================== 主逻辑 ====================
 
-log(`\n🚀 Starting zkParallel Circuit Build (v3)\n`);
+log(`\n🚀 Starting zkParallel Circuit Build (v3.2)\n`);
+
+// 🔧 自动清理旧缓存（防止路径冲突）
+try {
+  run(`npx hardhat clean`, { stdio: "inherit" });
+  log("🧹 Cleaned old Hardhat artifacts and cache.\n");
+} catch (err) {
+  log("⚠️ Hardhat clean skipped (not installed globally).");
+}
 
 ensureDir(path.dirname(PTAU_PATH));
 ensureDir(CONTRACTS_DIR);
@@ -71,11 +69,22 @@ for (const name of CIRCUITS) {
   const outDir = path.join(FRONTEND_ZK_DIR, name);
   ensureDir(outDir);
 
-  log(`🧩 Building circuit: ${name}`);
+  const capName = capitalize(name);
+  const hasVerifierSuffix = capName.toLowerCase().endsWith("verifier");
+  const contractName = hasVerifierSuffix ? capName : `${capName}Verifier`;
+  const solPath = path.join(CONTRACTS_DIR, `${contractName}.sol`);
+
+  log(`🧩 Building circuit: ${contractName}`);
 
   try {
     // === 编译 circom ===
     run(`circom "${circuitFile}" --r1cs --wasm --sym -o "${outDir}"`, { stdio: "inherit" });
+    const wasmSrc = path.join(outDir, `${name}_js`, `${name}.wasm`);
+    const wasmDest = path.join(outDir, `${name}.wasm`);
+    if (fs.existsSync(wasmSrc)) {
+      fs.copyFileSync(wasmSrc, wasmDest);
+      console.log(`📦 Copied ${name}.wasm to ${outDir}`);
+    }
 
     // === 生成 zkey ===
     run(`snarkjs groth16 setup "${outDir}/${name}.r1cs" "${PTAU_PATH}" "${outDir}/${name}_0000.zkey"`, { stdio: "inherit" });
@@ -83,33 +92,32 @@ for (const name of CIRCUITS) {
     run(`snarkjs zkey export verificationkey "${outDir}/${name}_0001.zkey" "${outDir}/verification_key.json"`, { stdio: "inherit" });
 
     // === 导出 solidity verifier ===
-    const solPath = path.join(CONTRACTS_DIR, `${capitalize(name)}Verifier.sol`);
     run(`snarkjs zkey export solidityverifier "${outDir}/${name}_0001.zkey" "${solPath}"`, { stdio: "inherit" });
 
     // === 修正合约类名 ===
     let solCode = fs.readFileSync(solPath, "utf8");
-    solCode = solCode.replace(/contract Groth16Verifier/g, `contract ${(name)}Verifier`);
+    solCode = solCode.replace(/contract Groth16Verifier/g, `contract ${contractName}`);
     fs.writeFileSync(solPath, solCode);
-    log(`🔧 Renamed contract class to ${(name)}Verifier`);
+    log(`🔧 Renamed contract class to ${contractName}`);
 
-    log(`✅ ${name} compiled successfully!\n`);
+    log(`✅ ${contractName} compiled successfully!\n`);
   } catch (err) {
-    console.error(`❌ Failed to build ${name}:`, err.message);
+    console.error(`❌ Failed to build ${contractName}:`, err.message);
   }
 }
 
-// 3️⃣ 编译合约并同步 ABI
+// 3️⃣ 编译 Solidity 合约并同步 ABI
 log("\n📦 Compiling Solidity contracts...");
 try {
   run(`npx hardhat compile`, { stdio: "inherit" });
 
-  // === 同步 ABI 到前端 ===
   const ARTIFACTS_DIR = path.join(ROOT, "artifacts", "contracts");
   ensureDir(ABI_DEST);
 
   fs.readdirSync(ARTIFACTS_DIR).forEach(folder => {
     const dir = path.join(ARTIFACTS_DIR, folder);
     if (!fs.statSync(dir).isDirectory()) return;
+
     fs.readdirSync(dir).forEach(file => {
       if (file.endsWith(".json") && !file.endsWith(".dbg.json")) {
         const srcFile = path.join(dir, file);

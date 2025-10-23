@@ -73,7 +73,7 @@ export default function ExecutionCard() {
 
       const { proof, publicSignals } = await snarkjs.groth16.fullProve(
         input,
-        `/zk/${selectedCircuit}/${selectedCircuit}.wasm`,
+        `/zk/${selectedCircuit}/${selectedCircuit}_js/${selectedCircuit}.wasm`,
         `/zk/${selectedCircuit}/${selectedCircuit}_0001.zkey`
       );
 

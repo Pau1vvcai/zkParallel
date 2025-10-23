@@ -14,12 +14,12 @@ import { runArcologyParallel } from "../lib/arcologyExecutor";
 import deploymentInfo from "../lib/config/deployments.json";
 
 const VERIFIER_MAP: Record<string, string> = {
-  execution: deploymentInfo.executionVerifier,
-  transferVerify: deploymentInfo.transferVerifyVerifier,
-  merkleUpdate: deploymentInfo.merkleUpdateVerifier,
-  rootVerifier: deploymentInfo.rootVerifierVerifier,
-  signatureCheck: deploymentInfo.signatureCheckVerifier,
-  transactionHash: deploymentInfo.transactionHashVerifier,
+  execution: deploymentInfo.ExecutionVerifier,
+  transferVerify: deploymentInfo.TransferVerifyVerifier,
+  merkleUpdate: deploymentInfo.MerkleUpdateVerifier,
+  rootVerifier: deploymentInfo.RootVerifier,
+  signatureCheck: deploymentInfo.SignatureCheckVerifier,
+  transactionHash: deploymentInfo.TransactionHashVerifier,
 };
 
 // === CircuitState ===

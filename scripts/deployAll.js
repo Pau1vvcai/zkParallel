@@ -17,12 +17,13 @@ async function main() {
   }
 
   const CONTRACTS = [
-    "executionVerifier",
-    "transferVerifyVerifier",
-    "merkleUpdateVerifier",
-    "rootVerifierVerifier",
-    "signatureCheckVerifier",
-    "transactionHashVerifier",
+    "ExecutionVerifier",
+    "TransferVerifyVerifier",
+    "MerkleUpdateVerifier",
+    "RootVerifier",
+    "SignatureCheckVerifier",
+    "TransactionHashVerifier",
+    "BatchVerifier",
   ];
 
   const deployed = [];
